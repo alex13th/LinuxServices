@@ -227,4 +227,69 @@
 
 \* На Server2 добавлены правила direct для пропуска пакетов между с интерфейса team0 на интерфейс ens36 и обрабтно.
 
-## 7. * Настроить slave для DNS-сервера server3. Убедиться, что репликация записей происходит.
+## 7. (ВЫПОЛНЕНО) * Настроить slave для DNS-сервера server3. Убедиться, что репликация записей происходит.
+
+**В качестве slave настроен сервер Server1**
+
+### 7.1 Ключевые параметры файла /etc/named.conf
+
+        options {
+                listen-on port 53 { 127.0.0.1; 1.1.1.1; };
+                allow-query     { localhost; 192.168.0.0/16; };
+
+                dnssec-enable no;
+                dnssec-validation no;
+        };
+
+        include "/etc/named.conf.local";
+
+### 7.2 Файл /etc/named.conf.local
+
+        zone "example.com" {
+                type slave;
+                file "/var/named/slaves/db.example.com";
+                masters { 3.3.3.3; };
+                allow-notify { 3.3.3.3; 192.168.23.1; };
+        };
+
+### 7.3 Ключевые моменты лога запуска службы named
+
+        ● named.service - Berkeley Internet Name Domain (DNS)
+        Loaded: loaded (/usr/lib/systemd/system/named.service; disabled; vendor preset: disabled)
+        Active: active (running) since Tue 2020-10-06 23:00:13 EDT; 3s ago
+        Main PID: 10573 (named)
+        Oct 06 23:00:13 server1 named[10573]: zone example.com/IN: loaded serial 2451
+        Oct 06 23:00:13 server1 named[10573]: zone localhost/IN: loaded serial 0
+        Oct 06 23:00:13 server1 named[10573]: all zones loaded
+        Oct 06 23:00:13 server1 named[10573]: running
+        Oct 06 23:00:13 server1 systemd[1]: Started Berkeley Internet Name Domain (DNS).
+
+### 7.4 Результат команды dig @1.1.1.1 server2.example.com 
+
+        ; <<>> DiG 9.11.4-P2-RedHat-9.11.4-16.P2.el7_8.6 <<>> @1.1.1.1 server2.example.com
+        ; (1 server found)
+        ;; global options: +cmd
+        ;; Got answer:
+        ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 55295
+        ;; flags: qr aa rd ra; QUERY: 1, ANSWER: 3, AUTHORITY: 1, ADDITIONAL: 2     
+
+        ;; OPT PSEUDOSECTION:
+        ; EDNS: version: 0, flags:; udp: 4096
+        ;; QUESTION SECTION:
+        ;server2.example.com.           IN      A
+
+        ;; ANSWER SECTION:
+        server2.example.com.    604800  IN      A       2.2.2.2
+        server2.example.com.    604800  IN      A       192.168.12.2
+        server2.example.com.    604800  IN      A       192.168.23.2
+
+        ;; AUTHORITY SECTION:
+        example.com.            604800  IN      NS      ns1.example.com.
+
+        ;; ADDITIONAL SECTION:
+        ns1.example.com.        604800  IN      A       3.3.3.3
+
+        ;; Query time: 1 msec
+        ;; SERVER: 1.1.1.1#53(1.1.1.1)
+        ;; WHEN: Tue Oct 06 23:03:13 EDT 2020
+        ;; MSG SIZE  rcvd: 130
