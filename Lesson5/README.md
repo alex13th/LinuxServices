@@ -1,13 +1,13 @@
-### Практическое задание к уроку 4
+## Практическое задание к уроку 5
 
 
-#### 1. На сервере server3 добавить еще один интерфейс — dummy с IP-адресом 33.33.33.33/32.
+### 1. На сервере server3 добавить еще один интерфейс — dummy с IP-адресом 33.33.33.33/32.
 
-##### 1.1 Файл /etc/modprobe.d/dummy.conf
+#### 1.1 Файл /etc/modprobe.d/dummy.conf
 
     options dummy numdummies=2
 
-##### 1.2 Файл /etc/sysconfig/network-scripts/ifcfg-dummy1
+#### 1.2 Файл /etc/sysconfig/network-scripts/ifcfg-dummy1
 
 
     DEVICE=dummy1
@@ -16,14 +16,14 @@
     NM_CONTROLLED=no
     ONBOOT=yes
 
-#### 2. НЕ анонсировать этот интерфейс в OSPF.
+### 2. НЕ анонсировать этот интерфейс в OSPF.
 
 Действий не требуется.
 
 
-#### 3. Поднять openvpn-сервер на server3 и обеспечить возможность подключения клиента server1, используя сертификаты.
+### 3. Поднять openvpn-сервер на server3 и обеспечить возможность подключения клиента server1, используя сертификаты.
 
-##### 3.1 Файл /etc/openvpn/easy-rsa/3/vars
+#### 3.1 Файл /etc/openvpn/easy-rsa/3/vars
     
 
     set_var EASYRSA                 "$PWD"
@@ -46,43 +46,43 @@
     set_var EASYRSA_DIGEST          "sha256"
 
 
-##### 3.2 Создание инфраструктуры PKI
+#### 3.2 Создание инфраструктуры PKI
 
     
     ./easyrsa init-pki
     ./easyrsa build-ca nopass
 
 
-##### 3.2 Создание запроса на сертификат для server3
+#### 3.2 Создание запроса на сертификат для server3
 
 
     ./easyrsa gen-req server3 nopass
 
 
-##### 3.3 Создание (подписание) сертификата для server3
+#### 3.3 Создание (подписание) сертификата для server3
 
 
     ./easyrsa sign-req server server3
 
 
-##### 3.4 Создание запроса на сертификат для клиента (server1)
+#### 3.4 Создание запроса на сертификат для клиента (server1)
 
 
     ./easyrsa gen-req server1 nopass
 
 
-##### 3.5 Создание (подписание) сертификата для клиента (server1)
+#### 3.5 Создание (подписание) сертификата для клиента (server1)
 
 
     ./easyrsa gen-req server1 nopass
 
 
-##### 3.6 Создание Diffie-Hellman-ключа
+#### 3.6 Создание Diffie-Hellman-ключа
 
 
     ./easyrsa gen-dh
 
-#### 3.7 Структура папок с ключами и сертификатами
+### 3.7 Структура папок с ключами и сертификатами
 
 
     .
@@ -145,7 +145,7 @@
         └── server3.key
 
 
-#### 3.8 Файл /etc/openvpn/server.conf
+### 3.8 Файл /etc/openvpn/server.conf
 
 
     # OpenVPN Port, Protocol and the Tun
@@ -190,7 +190,7 @@
 
 
 
-#### 3.9 Файл /etc/openvpn/client/server1.ovpn
+### 3.9 Файл /etc/openvpn/client/server1.ovpn
 
 
     client
@@ -218,7 +218,7 @@
     verb 3
 
 
-#### 3.11 Правила firewalld на Server3
+### 3.11 Правила firewalld на Server3
 
 
     public (active)
@@ -235,7 +235,7 @@
       icmp-blocks: 
       rich rules: 
 
-#### 3.12 Результат запуска openvpn --config server1.ovpn
+### 3.12 Результат запуска openvpn --config server1.ovpn
 
 
 **Состояние интерфейса tun0 на клиенте**
@@ -266,10 +266,10 @@
     192.168.23.0/24 via 192.168.12.2 dev team0 proto 188 metric 20 
 
 
-#### 4. Убедиться, что server1 может пропинговать 33.33.33.33, когда VPN подключен, и не может этого сделать, когда VPN не подключен.
+### 4. Убедиться, что server1 может пропинговать 33.33.33.33, когда VPN подключен, и не может этого сделать, когда VPN не подключен.
 
 
-##### 4.1 Результат ping при подключенном VPN
+#### 4.1 Результат ping при подключенном VPN
 
 **PING** 
 
@@ -295,7 +295,7 @@
     1:  33.33.33.33                                           0.882ms reached
     1:  33.33.33.33                                           0.553ms reached
 
-##### 4.2 Результат ping при отключеном VPN
+#### 4.2 Результат ping при отключеном VPN
 
 
 **PING** 
